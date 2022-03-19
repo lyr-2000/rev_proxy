@@ -30,6 +30,7 @@ func DoneHttpWait() {
 				}
 			}(port, fakeHttp)
 		}
+		delete(portRouter, port)
 	}
 }
 
