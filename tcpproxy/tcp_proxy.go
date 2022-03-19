@@ -25,7 +25,9 @@ func Default() TcpReverseProxy {
 	}
 
 	if runtime.GOOS == "linux" {
+		//log.Printf("use epoll handler\n")
 		//使用 epoll
+		//return &v1.EpollHandler{}
 	}
 	//通用的方法处理连接
 	return &commonhandle.CommonHandler{}

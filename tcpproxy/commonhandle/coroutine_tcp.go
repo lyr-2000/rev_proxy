@@ -17,35 +17,22 @@ func transferData(con net.Conn, to *url.URL) {
 	//defer con.Close()
 	target, err := net.Dial("tcp", to.Host)
 	if err != nil {
-		log.Printf("error occur [%+v]\n", err)
+		log.Printf("error occur dial tcp [%+v]\n", err)
+		//close
+		con.Close()
 		return
 	}
 	//defer target.Close()
 
 	go func() {
-		io.Copy(con, target)
-		con.Close()
-		target.Close()
-	}()
-	go func() {
 		io.Copy(target, con)
 		target.Close()
 		con.Close()
 	}()
-	//waitExit := make(chan bool, 1)
-	//var buf = make([]byte, consts.TcpBufSize)
-	//for {
-	//	nbuf, err := con.Read(buf)
-	//	if err != nil {
-	//		log.Printf("unable read  conn data %+v\n", err)
-	//		break
-	//	}
-	//	_, err = target.Write(buf[:nbuf])
-	//	if err != nil {
-	//		log.Printf("unable write conn data %+v", err)
-	//	}
-	//}
-	//<-waitExit
+
+	io.Copy(con, target)
+	con.Close()
+	target.Close()
 
 }
 func handle0(from, to *url.URL) error {
