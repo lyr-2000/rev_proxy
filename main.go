@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"myproxyHttp/httpproxy"
+	"myproxyHttp/tcpproxy"
 	"myproxyHttp/utils/fileutil"
 	"time"
 )
@@ -25,16 +26,25 @@ func main() {
 			log.Printf("error info %+v", s)
 			continue
 		}
-		// travel
+		// 注册http路由配置
 		err = httpproxy.ParseConfigMapDefault(s)
 		if err != nil {
 			log.Printf("error info %+v", err)
 		}
 		//all bytes
+		//注册tcp配置
+		err = tcpproxy.ParseConfigTcp(s)
+		if err != nil {
+			log.Printf("error info %+v", err)
+		}
 
 	}
 	//正式开始代理 http
 	httpproxy.DoneHttpWait()
+
+	tcpproxy.DoneFinal()
+
+	//开启tcp代理
 	for {
 		time.Sleep(time.Hour)
 	}

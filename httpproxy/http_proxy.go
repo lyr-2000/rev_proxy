@@ -21,7 +21,7 @@ func DoneHttpWait() {
 		var fakeHttp = portRouter[port]
 		if fakeHttp != nil {
 			go func(port string, fakeHttp *http.ServeMux) {
-				log.Printf("start proxy [localhost:%v] ", port)
+				log.Printf("start http proxy [localhost:%v] ", port)
 
 				err := http.ListenAndServe(fmt.Sprintf(":%s", port), fakeHttp)
 

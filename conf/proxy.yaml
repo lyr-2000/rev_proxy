@@ -6,4 +6,6 @@ proxy:
     # 请求 本地，然后转发到对应的 ip, 访问 localhost:8080,将跳转 这个 ip的页面
 
 
+  tcp:
+    - { from:"tcp://localhost:8080",to:"tcp://172.26.164.33:8078" }
 
