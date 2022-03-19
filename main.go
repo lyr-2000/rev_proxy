@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	yaml "github.com/goccy/go-yaml"
 	"io/ioutil"
 	"log"
@@ -12,8 +12,11 @@ import (
 )
 
 func main() {
-	fmt.Println("hello world")
-	list := fileutil.ListAllFilePathInDir("./conf")
+	confPath := *flag.String("conf", "conf", "configFile path")
+	//fmt.Println("hello world")
+	flag.Parse()
+	_ = fileutil.MkdirAll(confPath)
+	list := fileutil.ListAllFilePathInDir(confPath)
 	for _, v := range list {
 		bytes, err := ioutil.ReadFile(v)
 		if err != nil {

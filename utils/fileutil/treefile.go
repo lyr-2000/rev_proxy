@@ -3,6 +3,7 @@ package fileutil
 import (
 	"io/fs"
 	"log"
+	"os"
 	"path/filepath"
 )
 
@@ -20,4 +21,12 @@ func ListAllFilePathInDir(dir string) []string {
 		log.Println("err =", err)
 	}
 	return s
+}
+
+func MkdirAll(dir string) error {
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		log.Printf("io error [%+v]\n", err)
+	}
+	return err
 }
