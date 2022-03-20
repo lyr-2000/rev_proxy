@@ -88,15 +88,6 @@ func registerProxyConf(from, to string) error {
 		proxy.ServeHTTP(w, r)
 	})
 	log.Printf("config  proxy [%v]=> [%v]\n", fromUrl, toUrl)
-	//go func() {
-	//	log.Printf("start proxy [%v]=> [%v]", fromUrl, toUrl)
-	//
-	//	err := http.ListenAndServe(fmt.Sprintf(":%v", fromUrl.Port()), fakeHttp)
-	//
-	//	if err != nil {
-	//		log.Fatalf("listen error %+v\n", err)
-	//	}
-	//}()
 
 	return nil
 
