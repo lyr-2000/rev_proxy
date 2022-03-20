@@ -22,8 +22,9 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 
 	var poller = ep.Poller{}
 	//被移除epoll监听的时候,把网络连接关闭
-	poller.OnConnClose = func(epfd ep.EpollFd, conn ep.SockFd) {
+	poller.OnFdRemoved = func(epfd ep.EpollFd, conn ep.SockFd) {
 		var value = handler.mp[conn]
+		//因为目前是 单线程的事件循环，不需要加锁，多个协程就要考虑加锁
 		delete(handler.mp, conn)
 		//delete  conn => value
 		// value => conn
@@ -31,6 +32,7 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 			ep.EpollRemove(epfd, value, &poller)
 			//delete(handler.mp, value)
 		}
+		//epoll不会自动关闭 ，要我自己手动关闭 比较保险
 		conn.Close()
 		log.Printf("close fd [%v, %v]\n", conn, value)
 	}

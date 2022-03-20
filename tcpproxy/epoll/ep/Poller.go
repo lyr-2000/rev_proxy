@@ -18,7 +18,7 @@ import (
 type Poller struct {
 	SockFd       SockFd
 	EpFd         EpollFd
-	OnConnClose  func(epfd EpollFd, conn SockFd)
+	OnFdRemoved  func(epfd EpollFd, conn SockFd)
 	OnConnOpen   func(epfd EpollFd, conn SockFd)
 	OnMsgReceive func(epfd EpollFd, conn SockFd, eventCode uint32)
 }
@@ -32,7 +32,7 @@ func (p *Poller) Close() error {
 func EpollRemove(fd EpollFd, sockFd SockFd, poller *Poller) error {
 	defer func() {
 		if poller != nil {
-			poller.OnConnClose(fd, sockFd)
+			poller.OnFdRemoved(fd, sockFd)
 		}
 	}()
 	if err := syscall.EpollCtl(int(fd), syscall.EPOLL_CTL_DEL, int(sockFd), nil); err != nil {

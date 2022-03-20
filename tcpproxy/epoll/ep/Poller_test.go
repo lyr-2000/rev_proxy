@@ -11,7 +11,7 @@ func TestListen(t *testing.T) {
 	p.OnConnOpen = func(epfd EpollFd, conn SockFd) {
 		log.Printf("conn open %+v\n", conn)
 	}
-	p.OnConnClose = func(epfd EpollFd, conn SockFd) {
+	p.OnFdRemoved = func(epfd EpollFd, conn SockFd) {
 		conn.Close()
 	}
 	p.OnMsgReceive = func(fd EpollFd, conn SockFd, eventCode uint32) {
