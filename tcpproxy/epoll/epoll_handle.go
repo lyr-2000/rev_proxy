@@ -2,6 +2,7 @@ package epoll
 
 import (
 	"log"
+	"myproxyHttp/consts"
 	"myproxyHttp/tcpproxy/epoll/ep"
 	"net/url"
 	"strconv"
@@ -18,7 +19,7 @@ func (handler *EpHandler) Serve(from, to *url.URL) {
 func (handler *EpHandler) Serve0(from, to *url.URL) {
 	hostname := from.Hostname()
 	iport, _ := strconv.Atoi(from.Port())
-	handler.mp = make(map[ep.SockFd]ep.SockFd, 8)
+	handler.mp = make(map[ep.SockFd]ep.SockFd, consts.TcpSockFDMapSize)
 
 	var poller = ep.Poller{}
 	//被移除epoll监听的时候,把网络连接关闭
@@ -48,7 +49,7 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 		handler.mp[sockfd] = conn
 		handler.mp[conn] = sockfd
 	}
-	var buf = make([]byte, 2048)
+	var buf = make([]byte, consts.TcpBufSize)
 	poller.OnMsgReceive = func(epfd ep.EpollFd, conn ep.SockFd, eventCode uint32) {
 		nbuf, err := conn.Read(buf)
 		if err != nil {
@@ -70,9 +71,9 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 
 	}
 
-	var queue = make([]syscall.EpollEvent, 32)
+	var queue = make([]syscall.EpollEvent, consts.TcpEpollEventQueueSize)
 	//go func() {
-	_, err := ep.Listen(&poller, hostname, iport, 0, queue[:])
+	_, err := ep.Listen(&poller, hostname, iport, consts.TcpBackLog, queue[:])
 	if err != nil {
 		log.Printf("epoll error %v", err)
 	}

@@ -9,3 +9,6 @@ proxy:
   tcp:
     - { from:"tcp://localhost:8080",to:"tcp://172.26.171.183:10000" }
 
+  udp:
+    - { from:"udp://localhost:8080",to:"udp://localhost:8078" }
+

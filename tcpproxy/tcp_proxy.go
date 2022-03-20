@@ -35,6 +35,7 @@ func Default() TcpReverseProxy {
 	//通用的方法处理连接
 	return &commonhandle.CommonHandler{}
 }
+
 func registerTcpConf(f, t string) error {
 	from, err := url.Parse(f)
 	if err != nil {

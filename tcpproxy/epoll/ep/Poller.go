@@ -65,6 +65,7 @@ func Listen(poll *Poller, host string, port int, backlog int, eventQueue []sysca
 		host = "0.0.0.0"
 	}
 	if backlog <= 0 {
+		//backlog参数
 		backlog = syscall.SOMAXCONN
 	}
 	fd, err := syscall.Socket(syscall.AF_INET, syscall.O_NONBLOCK|syscall.SOCK_STREAM, 0) //创建socket

@@ -7,6 +7,7 @@ import (
 	"log"
 	"myproxyHttp/httpproxy"
 	"myproxyHttp/tcpproxy"
+	"myproxyHttp/udpproxy"
 	"myproxyHttp/utils/fileutil"
 	"time"
 )
@@ -39,6 +40,11 @@ func main() {
 		err = tcpproxy.ParseConfigTcp(s)
 		if err != nil {
 			log.Printf("error info %+v", err)
+		}
+		//udp proxy
+		if err = udpproxy.ParseConfigUdp(s); err != nil {
+			log.Printf("error info %+v", err)
+
 		}
 
 	}
