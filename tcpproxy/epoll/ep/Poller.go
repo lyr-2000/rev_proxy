@@ -114,6 +114,7 @@ func Listen(poll *Poller, host string, port int, backlog int, eventQueue []sysca
 					continue
 				}
 				sockFd := SockFd(connFd)
+				sockFd.SetNonBlock()
 				//监听 连接本断开的 sock 的 各种发送消息的事件
 				if err := EpollCtl(poll.EpFd, sockFd, syscall.EPOLLIN|syscall.EPOLLPRI); err != nil {
 					log.Printf("error at epoll ctrl %+v\n", err)
