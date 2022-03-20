@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 )
 
 var (
@@ -45,8 +44,12 @@ func standardUrl(from *url.URL) {
 func rewritePath(r *http.Request, from *url.URL, to *url.URL) {
 	// /ide/index.html            /ide/          /abc/
 	// /abc/index.html
-	w := strings.Replace(r.URL.Path, from.Path, to.Path, 1)
-	r.URL.Path = w
+	//w := strings.Replace(r.URL.Path, from.Path, to.Path, 1)
+	//fmt.Printf("[%s,  %s  %s]", r.URL.Path, from.Path, to.Path)
+	var (
+		raw, old, now = strutil.String2Bytes(r.URL.Path), strutil.String2Bytes(from.Path), strutil.String2Bytes(to.Path)
+	)
+	r.URL.Path = strutil.Byte2String(strutil.UnsafeReplaceBegin(raw, old, now))
 	//fmt.Printf("path %v, from %v,to %v  w %v\n", r.URL.Path, from.Path, to.Path, w)
 }
 func registerProxyConf(from, to string) error {
