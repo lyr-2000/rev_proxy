@@ -45,6 +45,20 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 			return
 		}
 		ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI)
+		//判断 ip地址校验之类的
+		//{
+		//	sockname, err := ep.GetSockname(conn)
+		//	if err != nil {
+		//		log.Printf("error sock name %+v", err)
+		//
+		//	}
+		//	ipv4, err := ep.GetIpv4(sockname)
+		//	if err != nil {
+		//		log.Printf("ip parse error %+v\n", err)
+		//	}
+		//	log.Printf("ipv4 address %s", ipv4)
+		//}
+
 		//创建连接
 		handler.mp[sockfd] = conn
 		handler.mp[conn] = sockfd

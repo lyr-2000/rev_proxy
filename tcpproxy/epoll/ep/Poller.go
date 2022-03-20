@@ -100,12 +100,13 @@ func Listen(poll *Poller, host string, port int, backlog int, eventQueue []sysca
 		nevent, err := syscall.EpollWait(epfd, eventQueue[:], -1)
 		//log.Printf("nevent %v, %v", nevent, err)
 		if err != nil {
+			//interupt 事件，是可以继续跑的
 			if err == syscall.EINTR {
 				continue
 			}
-			fmt.Printf("epoll_wait: %+v\n", err)
+			fmt.Printf("epoll_wait error ,close epoller: %+v\n", err)
 			//break
-			continue
+			break
 		}
 		for ev := 0; ev < nevent; ev++ {
 			if int(eventQueue[ev].Fd) == fd {
