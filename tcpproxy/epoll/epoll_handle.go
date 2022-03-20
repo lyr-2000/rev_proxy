@@ -63,6 +63,8 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 		nw, err := handler.mp[conn].Write(buf[:nbuf])
 		if err != nil {
 			log.Printf("write error %v", err)
+			ep.EpollRemove(epfd, conn, &poller)
+			return
 		}
 		if nw <= 0 {
 			ep.EpollRemove(epfd, conn, &poller)
