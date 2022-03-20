@@ -22,6 +22,7 @@ func Byte2String(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
+//替换 头部的 old串
 func UnsafeReplaceBegin(raw, old, now []byte) []byte {
 	var (
 		rawlen = len(raw)
@@ -37,9 +38,13 @@ func UnsafeReplaceBegin(raw, old, now []byte) []byte {
 	for i := 0; i < nowlen; i++ {
 		newBytes[i] = now[i]
 	}
-
-	for i := oldlen; i < rawlen; i++ {
+	////防止数组越界
+	//if rawlen > n {
+	//	rawlen = n
+	//}
+	for i := oldlen; nowlen < n; i++ {
 		newBytes[nowlen] = raw[i]
+
 		nowlen++
 	}
 	return newBytes

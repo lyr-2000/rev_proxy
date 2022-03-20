@@ -6,6 +6,6 @@ import (
 )
 
 func TestReplaceBegin(t *testing.T) {
-	var s = UnsafeReplaceBegin([]byte("/ide/golang/apng/"), []byte("/ide/golang/"), []byte("/axx/"))
+	var s = UnsafeReplaceBegin([]byte("/ide/golang/apng"), []byte("/ide/golang/"), []byte("/axx/"))
 	fmt.Printf("%s\n", string(s))
 }

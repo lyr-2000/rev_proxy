@@ -9,6 +9,6 @@ const (
 	TcpSockFDMapSize = 4
 
 	TcpBufSize             = 2048
-	TcpBackLog             = 0
+	TcpBackLog             = 128
 	TcpEpollEventQueueSize = 32
 )
