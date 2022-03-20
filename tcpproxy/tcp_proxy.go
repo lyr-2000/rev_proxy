@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"myproxyHttp/tcpproxy/commonhandle"
+	"myproxyHttp/tcpproxy/epoll"
 	"myproxyHttp/utils/reflectutil"
 	"myproxyHttp/utils/strutil"
 	"net/url"
@@ -28,6 +29,8 @@ func Default() TcpReverseProxy {
 		//log.Printf("use epoll handler\n")
 		//使用 epoll
 		//return &v1.EpollHandler{}
+		log.Printf("use epoll features \n")
+		return &epoll.EpHandler{}
 	}
 	//通用的方法处理连接
 	return &commonhandle.CommonHandler{}

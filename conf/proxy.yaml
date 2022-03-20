@@ -7,5 +7,5 @@ proxy:
 
 
   tcp:
-    - { from:"tcp://localhost:8080",to:"tcp://172.26.169.113:8078" }
+    - { from:"tcp://localhost:8080",to:"tcp://172.26.171.183:8078" }
 
