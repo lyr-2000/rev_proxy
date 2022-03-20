@@ -16,11 +16,11 @@ import (
 //)
 
 type Poller struct {
-	SockFd       SockFd
-	EpFd         EpollFd
-	OnFdRemoved  func(epfd EpollFd, conn SockFd)
-	OnConnOpen   func(epfd EpollFd, conn SockFd)
-	OnMsgReceive func(epfd EpollFd, conn SockFd, eventCode uint32)
+	SockFd         SockFd
+	EpFd           EpollFd
+	OnFdRemoved    func(epfd EpollFd, conn SockFd, p *Poller)
+	OnConnOpen     func(epfd EpollFd, conn SockFd, p *Poller)
+	OnSockFdActive func(epfd EpollFd, conn SockFd, eventCode uint32, p *Poller)
 }
 
 func (p *Poller) Close() error {
@@ -32,7 +32,7 @@ func (p *Poller) Close() error {
 func EpollRemove(fd EpollFd, sockFd SockFd, poller *Poller) error {
 	defer func() {
 		if poller != nil {
-			poller.OnFdRemoved(fd, sockFd)
+			poller.OnFdRemoved(fd, sockFd, poller)
 		}
 	}()
 	if err := syscall.EpollCtl(int(fd), syscall.EPOLL_CTL_DEL, int(sockFd), nil); err != nil {
@@ -122,12 +122,12 @@ func Listen(poll *Poller, host string, port int, backlog int, eventQueue []sysca
 					log.Printf("error at epoll ctrl %+v\n", err)
 				} else {
 					//无异常
-					poll.OnConnOpen(poll.EpFd, sockFd)
+					poll.OnConnOpen(poll.EpFd, sockFd, poll)
 				}
 
 			} else {
 
-				poll.OnMsgReceive(poll.EpFd, SockFd(eventQueue[ev].Fd), eventQueue[ev].Events)
+				poll.OnSockFdActive(poll.EpFd, SockFd(eventQueue[ev].Fd), eventQueue[ev].Events, poll)
 
 			}
 		}

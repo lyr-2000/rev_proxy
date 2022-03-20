@@ -23,76 +23,67 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 
 	var poller = ep.Poller{}
 	//被移除epoll监听的时候,把网络连接关闭
-	poller.OnFdRemoved = func(epfd ep.EpollFd, conn ep.SockFd) {
+	poller.OnFdRemoved = func(epfd ep.EpollFd, conn ep.SockFd, _ *ep.Poller) {
 		var value = handler.mp[conn]
 		//因为目前是 单线程的事件循环，不需要加锁，多个协程就要考虑加锁
 		delete(handler.mp, conn)
 		//delete  conn => value
 		// value => conn
 		if handler.mp[value] == conn {
-			ep.EpollRemove(epfd, value, &poller)
+			_ = ep.EpollRemove(epfd, value, &poller)
 			//delete(handler.mp, value)
 		}
 		//epoll不会自动关闭 ，要我自己手动关闭 比较保险
-		conn.Close()
+		_ = conn.Close()
 		log.Printf("close fd [%v, %v]\n", conn, value)
 	}
 	//连接监听时候的回调
-	poller.OnConnOpen = func(epfd ep.EpollFd, conn ep.SockFd) {
+	poller.OnConnOpen = func(epfd ep.EpollFd, conn ep.SockFd, _ *ep.Poller) {
 		sockfd, c, err := ep.Open("tcp", to.Host)
 		if err != nil || sockfd <= 0 || c == nil {
-			ep.EpollRemove(epfd, conn, &poller)
+			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
-		ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI)
+		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI)
 		//判断 ip地址校验之类的
 		//{
-		//	sockname, err := ep.GetSockname(conn)
-		//	if err != nil {
-		//		log.Printf("error sock name %+v", err)
-		//
-		//	}
-		//	ipv4, err := ep.GetIpv4(sockname)
-		//	if err != nil {
-		//		log.Printf("ip parse error %+v\n", err)
-		//	}
+		//	sockname, _ := ep.GetSockname(conn)
+		//	ipv4, _ := ep.GetIpv4(sockname)
 		//	log.Printf("ipv4 address %s", ipv4)
 		//}
-
 		//创建连接
 		handler.mp[sockfd] = conn
 		handler.mp[conn] = sockfd
 	}
 	var buf = make([]byte, consts.TcpBufSize)
-	poller.OnMsgReceive = func(epfd ep.EpollFd, conn ep.SockFd, eventCode uint32) {
+	poller.OnSockFdActive = func(epfd ep.EpollFd, conn ep.SockFd, eventCode uint32, _ *ep.Poller) {
 		nbuf, err := conn.Read(buf)
 		if err != nil {
-			ep.EpollRemove(epfd, conn, &poller)
+			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
 		if nbuf <= 0 {
-			ep.EpollRemove(epfd, conn, &poller)
+			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
 		nw, err := handler.mp[conn].Write(buf[:nbuf])
 		if err != nil {
 			log.Printf("write error %v", err)
-			ep.EpollRemove(epfd, conn, &poller)
+			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
 		if nw <= 0 {
-			ep.EpollRemove(epfd, conn, &poller)
+			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
 
 	}
 
 	var queue = make([]syscall.EpollEvent, consts.TcpEpollEventQueueSize)
-	//go func() {
+
 	_, err := ep.Listen(&poller, hostname, iport, consts.TcpBackLog, queue[:])
 	if err != nil {
 		log.Printf("epoll error %v", err)
 	}
-	//}()
 
 }

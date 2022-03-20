@@ -14,7 +14,7 @@ func TestListen(t *testing.T) {
 	p.OnFdRemoved = func(epfd EpollFd, conn SockFd) {
 		conn.Close()
 	}
-	p.OnMsgReceive = func(fd EpollFd, conn SockFd, eventCode uint32) {
+	p.OnSockFdActive = func(fd EpollFd, conn SockFd, eventCode uint32) {
 		var buf = make([]byte, 4096)
 		n, err := conn.Read(buf)
 		log.Printf("event code is {%v}", eventCode)
