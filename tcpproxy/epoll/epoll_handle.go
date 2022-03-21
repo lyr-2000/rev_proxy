@@ -44,6 +44,7 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
+		sockfd.SetNonBlock()
 		//客户端的话，最好监听 err 和 断开连接事件
 		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI|syscall.EPOLLERR|syscall.EPOLLRDHUP)
 		//判断 ip地址校验之类的
