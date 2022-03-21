@@ -44,7 +44,8 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
-		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI)
+		//客户端的话，最好监听 err 和 断开连接事件
+		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI|syscall.EPOLLERR|syscall.EPOLLRDHUP)
 		//判断 ip地址校验之类的
 		//{
 		//	sockname, _ := ep.GetSockname(conn)
@@ -57,11 +58,24 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 	}
 	var buf = make([]byte, consts.TcpBufSize)
 	poller.OnSockFdActive = func(epfd ep.EpollFd, conn ep.SockFd, eventCode uint32, _ *ep.Poller) {
+		if eventCode&syscall.EPOLLRDHUP != 0 {
+			//log.Printf("conn down\n")
+			//客户端主动断开连接，调用 epoll_remove
+			_ = ep.EpollRemove(epfd, conn, &poller)
+			return
+		}
+		if eventCode&syscall.EPOLLERR != 0 {
+			_ = ep.EpollRemove(epfd, conn, &poller)
+			return
+		}
+		//log.Printf("receive code %x\n", eventCode)
+		//log.Printf("socket active\n")
 		nbuf, err := conn.Read(buf)
 		if err != nil {
 			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
+		//只要有数据包，就不可能小于0
 		if nbuf <= 0 {
 			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
