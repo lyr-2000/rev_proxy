@@ -12,6 +12,10 @@ type RewriteUrlMiddleWare struct {
 	Proxy    *httputil.ReverseProxy
 }
 
+//func (w *RewriteUrlMiddleWare) HostKey() string {
+//	return w.To.Host
+//}
+
 func standardUrl(from *url.URL) {
 	if from.Path == "" {
 		from.Path = "/"
