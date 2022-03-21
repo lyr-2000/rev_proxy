@@ -1,13 +1,30 @@
 proxy:
   http:
-    - { from:"http://localhost:8080/ide/golang/",to:"http://localhost:10000/"  }
-    - { from:"http://localhost:9084/ide",to:"http://172.26.164.33:10000/"  }
-    - { from:"http://localhost:9082",to:"http://www.cnblogs.com/" }
-    # 请求 本地，然后转发到对应的 ip, 访问 localhost:8080,将跳转 这个 ip的页面
-
+    - nodes:
+        from: http://localhost:9084/ide/
+        weight: [ 10,10 ]
+        to: # 必须和 to长度一样，否则不会生效
+          - http://localhost:10000/
+          - http://localhost:10000/
+    - nodes:
+        from: http://localhost:8080/api/
+        to:
+          - http://localhost:10000/
   tcp:
-    - { from:"tcp://localhost:8083",to:"tcp://localhost:9090" }
-
+    - nodes:
+        from: http://localhost:9084/ide/
+        weight: [ 10,10 ]
+        to:
+          - http://localhost:10000/
+          - http://localhost:10000/
+    - nodes:
+        from: http://localhost:8080/api/
+        to:
+          - http://localhost:10000/
   udp:
-    - { from:"udp://localhost:8080",to:"udp://localhost:8078" }
+    - nodes:
+        from: http://localhost:9084/ide/
+        to:
+          - http://localhost:10000/
+
 
