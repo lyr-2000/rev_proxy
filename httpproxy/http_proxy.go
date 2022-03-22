@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func Simple(from, to *url.URL) {
+func _Simple(from, to *url.URL) {
 
 	var s = middleware.NewUrlRewriteMiddleWare(from, to)
 	http.HandleFunc(from.Path, func(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +22,7 @@ func Simple(from, to *url.URL) {
 
 }
 
-func Simple1() {
+func _Simple1() {
 
 	var s1 = []string{
 		"http://localhost:8081/",
