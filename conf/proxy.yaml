@@ -1,28 +1,23 @@
 proxy:
-  http:
+#  http:
+#    - nodes:
+#        timeout: "30s"
+#        keepAlive: "30s"
+#        maxIdleConns: 100 #连接池数量
+#        expectContinueTimeout: "2s"
+#        tlsHandshakeTimeout: "10s"
+#        from: "http://localhost:9084/ide/"
+#        to: # 必须和 to长度一样，否则不会生效
+#          - "http://localhost:10000/"
+#        readTimeout: 60s
+#    - nodes:
+#        from: http://localhost:8081/api/
+#        to:
+#          - http://localhost:10000/
+  tcp:
     - nodes:
-        timeout: "30s"
-        keepAlive: "30s"
-        maxIdleConns: 100 #连接池数量
-        expectContinueTimeout: "2s"
-        tlsHandshakeTimeout: "10s"
-        from: "http://localhost:9084/ide/"
-        to: # 必须和 to长度一样，否则不会生效
-          - "http://localhost:10000/"
-        readTimeout: 60s
-    - nodes:
-        from: http://localhost:8080/api/
+        from: http://localhost:8080/
         to:
           - http://localhost:10000/
-#  tcp:
-#    - nodes:
-#        from: http://localhost:9084/ide/
-#        to:
-#          - http://localhost:10000/
-#          - http://localhost:10000/
-#    - nodes:
-#        from: http://localhost:8080/api/
-#        to:
-#          - http://localhost:10000/
 
 

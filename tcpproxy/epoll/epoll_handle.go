@@ -17,6 +17,7 @@ func (handler *EpHandler) Serve(from, to *url.URL) {
 	go handler.Serve0(from, to)
 }
 func (handler *EpHandler) Serve0(from, to *url.URL) {
+	log.Printf("serve0 %v, %v", from, to)
 	hostname := from.Hostname()
 	iport, _ := strconv.Atoi(from.Port())
 	handler.mp = make(map[ep.SockFd]ep.SockFd, consts.TcpSockFDMapSize)
@@ -46,7 +47,7 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 		}
 		sockfd.SetNonBlock()
 		//客户端的话，最好监听 err 和 断开连接事件
-		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI|syscall.EPOLLERR|syscall.EPOLLRDHUP)
+		_ = ep.EpollCtl(epfd, sockfd, syscall.EPOLLIN|syscall.EPOLLPRI)
 		//判断 ip地址校验之类的
 		//{
 		//	sockname, _ := ep.GetSockname(conn)
@@ -59,13 +60,16 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 	}
 	var buf = make([]byte, consts.TcpBufSize)
 	poller.OnSockFdActive = func(epfd ep.EpollFd, conn ep.SockFd, eventCode uint32, _ *ep.Poller) {
-		if eventCode&syscall.EPOLLRDHUP != 0 {
-			//log.Printf("conn down\n")
-			//客户端主动断开连接，调用 epoll_remove
-			_ = ep.EpollRemove(epfd, conn, &poller)
-			return
-		}
+		//log.Printf("sock active \n")
+		//if eventCode&syscall.EPOLLRDHUP != 0 {
+		//	log.Printf("client closed\n")
+		//	//log.Printf("conn down\n")
+		//	//客户端主动断开连接，调用 epoll_remove
+		//	_ = ep.EpollRemove(epfd, conn, &poller)
+		//	return
+		//}
 		if eventCode&syscall.EPOLLERR != 0 {
+			log.Printf("ep error\n")
 			_ = ep.EpollRemove(epfd, conn, &poller)
 			return
 		}
