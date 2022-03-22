@@ -29,6 +29,7 @@ func (u *clearThread_) Process() {
 	} else {
 		u.Lock()
 		if u.isActive {
+			u.Unlock()
 			return
 		}
 		u.isActive = true

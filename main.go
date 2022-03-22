@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
+	"log"
+	"myproxyHttp/config"
 	"myproxyHttp/httpproxy"
 	"time"
 )
 
 func main() {
-	_ = *flag.String("conf", "conf", "configFile path")
+	cconf := *flag.String("conf", "conf", "configFile path")
 	//fmt.Println("hello world")
 	flag.Parse()
 	//_ = fileutil.MkdirAll(confPath)
@@ -16,8 +18,11 @@ func main() {
 
 	//from, _ := url.Parse("http://localhost:8080/")
 	//to, _ := url.Parse("http://localhost:10004/")
-	httpproxy.Simple1()
+	config.Load(cconf)
+	httpproxy.WithConfig()
+	//httpproxy.Simple1()
 	//开启tcp代理
+	log.Printf("init done\n")
 	for {
 		time.Sleep(time.Hour)
 	}

@@ -108,31 +108,34 @@ func NewLbProxyHandler(fromU string, toUrlList []string) (*LbProxyHandler, error
 		//处理 后面的 /
 		standardUrl(toList[i])
 		handler[i] = NewUrlRewriteMiddleWare(from, toList[i])
-		handler[i].Proxy.ModifyResponse = func(response *http.Response) error {
-			if res.AliveHost < len(handler) && time.Now().Sub(res.LastModify).Minutes() > 4 {
-				select {
-				case ClearThread.Channel <- res: //通知清理协程清理或者回复down了的主机
-				default:
-				}
-			}
-			return httpcallback.ModifyResponse(response)
-		}
-		handler[i].Proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-			if err != nil {
-
-				switch err.(type) {
-				case *net.OpError:
-					op := err.(*net.OpError)
-					if op.Op == "dial" {
-						select {
-						case ClearThread.Channel <- res: //通知清理协程清理掉down了的主机
-						default:
-						}
+		// 主机数量大于1
+		if len(toUrlList) > 1 {
+			handler[i].Proxy.ModifyResponse = func(response *http.Response) error {
+				if res.AliveHost < len(handler) && time.Now().Sub(res.LastModify).Minutes() > 4 {
+					select {
+					case ClearThread.Channel <- res: //通知清理协程清理或者回复down了的主机
+					default:
 					}
 				}
-
+				return httpcallback.ModifyResponse(response)
 			}
-			httpcallback.OnError(writer, request, err)
+			handler[i].Proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
+				if err != nil {
+
+					switch err.(type) {
+					case *net.OpError:
+						op := err.(*net.OpError)
+						if op.Op == "dial" {
+							select {
+							case ClearThread.Channel <- res: //通知清理协程清理掉down了的主机
+							default:
+							}
+						}
+					}
+
+				}
+				httpcallback.OnError(writer, request, err)
+			}
 		}
 
 	}

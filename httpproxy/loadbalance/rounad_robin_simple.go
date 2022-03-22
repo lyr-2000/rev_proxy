@@ -30,7 +30,7 @@ func (lb *RoundRobinSimple) NextIndex(w http.ResponseWriter, r *http.Request, al
 	if limit <= 0 {
 		return 0
 	}
-	res := lb.Index
+	res := atomic.LoadInt32(&lb.Index)
 	//n-1 => 0
 	if res >= limit-1 {
 		//从0 开始

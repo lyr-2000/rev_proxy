@@ -7,30 +7,22 @@ proxy:
         expectContinueTimeout: "2s"
         tlsHandshakeTimeout: "10s"
         from: "http://localhost:9084/ide/"
-        weight: [ 10,10 ]
         to: # 必须和 to长度一样，否则不会生效
-          - "http://localhost:10000/"
           - "http://localhost:10000/"
         readTimeout: 60s
     - nodes:
         from: http://localhost:8080/api/
         to:
           - http://localhost:10000/
-  tcp:
-    - nodes:
-        from: http://localhost:9084/ide/
-        weight: [ 10,10 ]
-        to:
-          - http://localhost:10000/
-          - http://localhost:10000/
-    - nodes:
-        from: http://localhost:8080/api/
-        to:
-          - http://localhost:10000/
-  udp:
-    - nodes:
-        from: http://localhost:9084/ide/
-        to:
-          - http://localhost:10000/
+#  tcp:
+#    - nodes:
+#        from: http://localhost:9084/ide/
+#        to:
+#          - http://localhost:10000/
+#          - http://localhost:10000/
+#    - nodes:
+#        from: http://localhost:8080/api/
+#        to:
+#          - http://localhost:10000/
 
 
