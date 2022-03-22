@@ -2,6 +2,7 @@ package loadbalance
 
 import (
 	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -15,10 +16,25 @@ import (
 type SimpleRandomLb struct {
 }
 
-func (u *SimpleRandomLb) NextIndex(size int) int {
-	return rand.Intn(size)
+func NewSimpleRandomLb() *SimpleRandomLb {
+	return &SimpleRandomLb{}
+}
+func (u *SimpleRandomLb) NextIndex(w http.ResponseWriter, r *http.Request, aliveHost int) int {
+	if aliveHost <= 0 {
+		return 0
+	}
+	return rand.Intn(aliveHost)
+}
+func (u *SimpleRandomLb) RemoveHost(key string) {
+
 }
 
 func init() {
 	rand.Seed(time.Now().UnixMilli())
+}
+
+type LbObject interface {
+	NextIndex(w http.ResponseWriter, r *http.Request, aliveHost int) int
+
+	RemoveHost(key string)
 }

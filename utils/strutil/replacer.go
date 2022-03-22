@@ -6,11 +6,11 @@ import (
 )
 
 //高性能写法，避免内存拷贝
-func String2Bytes(s string) (b []byte) {
+func String2Bytes(s *string) (b []byte) {
 	/* #nosec G103 */
 	bh := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	/* #nosec G103 */
-	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	sh := (*reflect.StringHeader)(unsafe.Pointer(s))
 	bh.Data = sh.Data
 	bh.Cap = sh.Len
 	bh.Len = sh.Len

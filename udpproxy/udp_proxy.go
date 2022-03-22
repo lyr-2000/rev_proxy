@@ -1,12 +1,9 @@
 package udpproxy
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"myproxyHttp/consts"
-	"myproxyHttp/utils/reflectutil"
-	"myproxyHttp/utils/strutil"
 	"net"
 	"net/url"
 )
@@ -49,46 +46,46 @@ func Serve0(f, t *url.URL) error {
 }
 
 //------------
-
-func registerUdpConf(f, t string) error {
-	from, err := url.Parse(f)
-	if err != nil {
-		return err
-	}
-	to, err := url.Parse(t)
-
-	if err != nil {
-		return err
-	}
-	proxy := &UdpHandler{}
-	log.Printf("start udp proxy [%v]\n", from)
-	//开启代理
-	proxy.Serve(from, to)
-
-	return nil
-}
-func ParseConfigUdp(mp map[string]interface{}) error {
-	if mp == nil {
-		log.Println("无http配置")
-		return nil
-	}
-	log.Printf("config map %#v", strutil.ToJSON(mp))
-	var proxy = mp["proxy"].(map[string]interface{})
-	if httpConf, ok := proxy["udp"]; ok {
-		if !reflectutil.IsArrayOrSlice(httpConf) {
-			// 如果不是数组
-			return errors.New("配置不正确，proxy.http不是数组")
-		}
-		arr := httpConf.([]interface{})
-		for i, _ := range arr {
-			h := arr[i].(map[string]interface{})
-			err := registerUdpConf(h["from"].(string), h["to"].(string))
-			if err != nil {
-				log.Printf("%+v\n", err)
-			}
-		}
-		// proxy parse
-	}
-
-	return nil
-}
+//
+//func registerUdpConf(f, t string) error {
+//	from, err := url.Parse(f)
+//	if err != nil {
+//		return err
+//	}
+//	to, err := url.Parse(t)
+//
+//	if err != nil {
+//		return err
+//	}
+//	proxy := &UdpHandler{}
+//	log.Printf("start udp proxy [%v]\n", from)
+//	//开启代理
+//	proxy.Serve(from, to)
+//
+//	return nil
+//}
+//func ParseConfigUdp(mp map[string]interface{}) error {
+//	if mp == nil {
+//		log.Println("无http配置")
+//		return nil
+//	}
+//	log.Printf("config map %#v", strutil.ToJSON(mp))
+//	var proxy = mp["proxy"].(map[string]interface{})
+//	if httpConf, ok := proxy["udp"]; ok {
+//		if !reflectutil.IsArrayOrSlice(httpConf) {
+//			// 如果不是数组
+//			return errors.New("配置不正确，proxy.http不是数组")
+//		}
+//		arr := httpConf.([]interface{})
+//		for i, _ := range arr {
+//			h := arr[i].(map[string]interface{})
+//			err := registerUdpConf(h["from"].(string), h["to"].(string))
+//			if err != nil {
+//				log.Printf("%+v\n", err)
+//			}
+//		}
+//		// proxy parse
+//	}
+//
+//	return nil
+//}
