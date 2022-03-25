@@ -36,7 +36,7 @@ func (handler *EpHandler) Serve0(from, to *url.URL) {
 		}
 		//epoll不会自动关闭 ，要我自己手动关闭 比较保险
 		_ = conn.Close()
-		log.Printf("close fd [%v, %v]\n", conn, value)
+		//log.Printf("close fd [%v, %v]\n", conn, value)
 	}
 	//连接监听时候的回调
 	poller.OnConnOpen = func(epfd ep.EpollFd, conn ep.SockFd, _ *ep.Poller) {
