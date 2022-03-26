@@ -45,7 +45,7 @@ func (u *clearThread_) Process() {
 			log.Printf("host down, adjust prehost = %v\n", proxyHandler.AliveHost)
 			adjustProxyObject(proxyHandler)
 			log.Printf("adjusted alive host = %v\n", proxyHandler.AliveHost)
-		case <-time.After(time.Minute):
+		case <-time.After(time.Minute * 3):
 			//上次没有通知，这次也没有
 
 		}
