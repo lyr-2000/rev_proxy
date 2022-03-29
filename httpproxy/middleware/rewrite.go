@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"crypto/tls"
-	"io"
 	"log"
 	"myproxyHttp/httpproxy/httpcallback"
 	"myproxyHttp/utils/strutil"
@@ -202,69 +201,69 @@ type HttpHandler func(w http.ResponseWriter, r *http.Request)
 //		}
 //		req.Header.Set("X-Forwarded-For", clientIP)
 //	}
+////}
+//func (p *RewriteUrlMiddleWare) ProxyHTTPS(rw http.ResponseWriter, req *http.Request) {
+//	req.Host = p.To.Host
+//	hij, ok := rw.(http.Hijacker)
+//	if !ok {
+//		log.Printf("http server does not support hijacker")
+//		return
+//	}
+//
+//	clientConn, _, err := hij.Hijack()
+//	if err != nil {
+//		log.Printf("http: proxy error: %v", err)
+//		return
+//	}
+//
+//	proxyConn, err := net.Dial("tcp", req.URL.Host)
+//	if err != nil {
+//		log.Printf("http: proxy error: %v", err)
+//		return
+//	}
+//
+//	// The returned net.Conn may have read or write deadlines
+//	// already set, depending on the configuration of the
+//	// Server, to set or clear those deadlines as needed
+//	// we set timeout to 5 minutes
+//	deadline := time.Now()
+//	//if p.Timeout == 0 {
+//	deadline = deadline.Add(time.Minute * 2)
+//
+//	err = clientConn.SetDeadline(deadline)
+//	if err != nil {
+//		log.Printf("http: proxy error: %v", err)
+//		return
+//	}
+//
+//	err = proxyConn.SetDeadline(deadline)
+//	if err != nil {
+//		log.Printf("http: proxy error: %v", err)
+//		return
+//	}
+//
+//	_, err = clientConn.Write([]byte("HTTP/1.0 200 OK\r\n\r\n"))
+//	if err != nil {
+//		log.Printf("http: proxy error: %v", err)
+//		return
+//	}
+//
+//	go func() {
+//		io.Copy(clientConn, proxyConn)
+//		clientConn.Close()
+//		proxyConn.Close()
+//	}()
+//
+//	io.Copy(proxyConn, clientConn)
+//	proxyConn.Close()
+//	clientConn.Close()
 //}
-func (p *RewriteUrlMiddleWare) ProxyHTTPS(rw http.ResponseWriter, req *http.Request) {
-	req.Host = p.To.Host
-	hij, ok := rw.(http.Hijacker)
-	if !ok {
-		log.Printf("http server does not support hijacker")
-		return
-	}
-
-	clientConn, _, err := hij.Hijack()
-	if err != nil {
-		log.Printf("http: proxy error: %v", err)
-		return
-	}
-
-	proxyConn, err := net.Dial("tcp", req.URL.Host)
-	if err != nil {
-		log.Printf("http: proxy error: %v", err)
-		return
-	}
-
-	// The returned net.Conn may have read or write deadlines
-	// already set, depending on the configuration of the
-	// Server, to set or clear those deadlines as needed
-	// we set timeout to 5 minutes
-	deadline := time.Now()
-	//if p.Timeout == 0 {
-	deadline = deadline.Add(time.Minute * 2)
-
-	err = clientConn.SetDeadline(deadline)
-	if err != nil {
-		log.Printf("http: proxy error: %v", err)
-		return
-	}
-
-	err = proxyConn.SetDeadline(deadline)
-	if err != nil {
-		log.Printf("http: proxy error: %v", err)
-		return
-	}
-
-	_, err = clientConn.Write([]byte("HTTP/1.0 200 OK\r\n\r\n"))
-	if err != nil {
-		log.Printf("http: proxy error: %v", err)
-		return
-	}
-
-	go func() {
-		io.Copy(clientConn, proxyConn)
-		clientConn.Close()
-		proxyConn.Close()
-	}()
-
-	io.Copy(proxyConn, clientConn)
-	proxyConn.Close()
-	clientConn.Close()
-}
 func (ws *RewriteUrlMiddleWare) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method == http.MethodConnect {
-		ws.ProxyHTTPS(w, r)
-		return
-	}
+	//https 通过 connect请求建立 连接，然后传输数据
+	//if r.Method == http.MethodConnect {
+	//	ws.ProxyHTTPS(w, r)
+	//	return
+	//}
 
 	//直接代理转发
 	ws.Proxy.ServeHTTP(w, r)
