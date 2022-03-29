@@ -4,9 +4,9 @@ keyFile: "./conf/localhost-key.pem"
 proxy:
   http:
     - nodes:
-        from: https://localhost:8081/
+        from: http://localhost:8081/
         to:
-          - https://www.lyr-2000.xyz/
+          - https://github.com/
 #  tcp:
 #    - nodes:
 #        from: http://localhost:8080/
