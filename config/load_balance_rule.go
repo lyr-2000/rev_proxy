@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"net/http/httputil"
 	"sync"
 )
@@ -27,5 +26,5 @@ var LoadBalanceRule struct {
 //
 //}
 func InitHttpConfig() {
-	viper.Get("")
+	//viper.Get("")
 }

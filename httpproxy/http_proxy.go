@@ -55,8 +55,12 @@ func _reg(f string, to []interface{}) {
 			s[i] = to[i].(string)
 		}
 		handler, err := middleware.NewLbProxyHandler(f, s)
+
 		if err != nil {
 			log.Printf("error %+v")
+			return
+		}
+		if len(handler.ToList) <= 0 {
 			return
 		}
 		var fhttp = http.NewServeMux()
@@ -65,7 +69,31 @@ func _reg(f string, to []interface{}) {
 		})
 		log.Printf("init http proxy from=[%s], to=[%v] \n", f, to)
 		go middleware.ClearThread.Process()
-		http.ListenAndServe(handler.From.Host, fhttp)
+		//if handler.ToList[0].Scheme == "http" {
+		if handler.From.Scheme == "https" {
+			//viper.GetString("certFile")
+			keyfile := viper.GetString("keyFile")
+			if keyfile == "" {
+				keyfile = "./conf/localhost-key.pem"
+			}
+			certFile := viper.GetString("certFile")
+			if certFile == "" {
+				certFile = "./conf/localhost.pem"
+			}
+			http.ListenAndServeTLS(handler.From.Host, certFile, keyfile, fhttp)
+		} else {
+
+			http.ListenAndServe(handler.From.Host, fhttp)
+		}
+		//} else {
+		//	//viper.GetString("")
+		//	//use https
+		//	err := http.ListenAndServeTLS(fmt.Sprintf(":%v", handler.From.Port()), "./conf/localhost.pem", "./conf/localhost-key.pem", fhttp)
+		//	if err != nil {
+		//		log.Printf("error server tls %+v", err)
+		//	}
+		//	log.Printf("use tls config\n")
+		//}
 
 	}()
 }

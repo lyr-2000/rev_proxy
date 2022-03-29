@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"myproxyHttp/utils/fileutil"
+	"strings"
 )
 
 func Load(confPath string) {
@@ -11,7 +12,13 @@ func Load(confPath string) {
 	if len(dir) <= 0 {
 		panic(fmt.Sprintf("no config file in %s\n", confPath))
 	}
-	viper.SetConfigFile(dir[0])
+	for _, v := range dir {
+		if strings.HasSuffix(v, ".yml") ||
+			strings.HasSuffix(v, ".yaml") {
+			viper.SetConfigFile(v)
+		}
+	}
+	//viper.SetConfigFile(dir[0])
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err != nil {

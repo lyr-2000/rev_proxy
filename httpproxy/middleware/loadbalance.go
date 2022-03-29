@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"myproxyHttp/httpproxy/httpcallback"
 	"myproxyHttp/httpproxy/loadbalance"
 	"net"
 	"net/http"
@@ -110,36 +109,13 @@ func NewLbProxyHandler(fromU string, toUrlList []string) (*LbProxyHandler, error
 		handler[i] = NewUrlRewriteMiddleWare(from, toList[i])
 		// 主机数量大于1
 		if len(toUrlList) > 1 {
-			handler[i].Proxy.ModifyResponse = func(response *http.Response) error {
-				if res.AliveHost < len(handler) && time.Now().Sub(res.LastModify).Minutes() > 4 {
-					select {
-					case ClearThread.Channel <- res: //通知清理协程清理或者回复down了的主机
-					default:
-					}
-				}
-				return httpcallback.ModifyResponse(response)
-			}
-			handler[i].Proxy.ErrorHandler = func(writer http.ResponseWriter, request *http.Request, err error) {
-				if err != nil {
-
-					switch err.(type) {
-					case *net.OpError:
-						op := err.(*net.OpError)
-						if op.Op == "dial" {
-							select {
-							case ClearThread.Channel <- res: //通知清理协程清理掉down了的主机
-							default:
-							}
-						}
-					}
-
-				}
-				httpcallback.OnError(writer, request, err)
-			}
+			handler[i].Proxy.ModifyResponse = res.WrapModifyResponse(handler[i].Proxy.ModifyResponse)
+			handler[i].Proxy.ErrorHandler = res.WrapErrorHandler(handler[i].Proxy.ErrorHandler)
 		}
 
 	}
 	res.AliveHost = len(handler)
+	//default
 	res.lbrule = loadbalance.NewSimpleRandomLb()
 	return res, nil
 
@@ -197,7 +173,7 @@ func (u *LbProxyHandler) clearDiedProxy() {
 	//for i, _ := range u.Handler {
 	i := 0
 	for i < n {
-		u.Handler[i].LiveCheck()
+		_ = u.Handler[i].LiveCheck()
 		if u.Handler[i].Down {
 			//交换节点
 			u.Handler[n-1], u.Handler[i] = u.Handler[i], u.Handler[n-1]
@@ -220,4 +196,42 @@ func (u *LbProxyHandler) UseConsistHash() {
 }
 func (u *LbProxyHandler) UseLoadBalanceRule(f loadbalance.LbObject) {
 	u.lbrule = f
+}
+
+//异常处理
+func (u *LbProxyHandler) WrapErrorHandler(in func(w http.ResponseWriter, r *http.Request, err error)) func(writer http.ResponseWriter, request *http.Request, err error) {
+
+	return func(w http.ResponseWriter, r *http.Request, err error) {
+
+		if err != nil {
+
+			switch err.(type) {
+			case *net.OpError:
+				op := err.(*net.OpError)
+				if op.Op == "dial" {
+					select {
+					case ClearThread.Channel <- u: //通知清理协程清理掉down了的主机
+					default:
+					}
+				}
+			}
+
+		}
+
+		in(w, r, err)
+	}
+}
+
+//
+func (u *LbProxyHandler) WrapModifyResponse(in func(w *http.Response) error) func(w *http.Response) error {
+	return func(w *http.Response) error {
+		if u.AliveHost < len(u.Handler) && time.Now().Sub(u.LastModify).Minutes() > 4 {
+			select {
+			case ClearThread.Channel <- u: //通知清理协程清理或者回复down了的主机
+			default:
+			}
+		}
+		//return httpcallback.ModifyResponse(response)
+		return in(w)
+	}
 }
