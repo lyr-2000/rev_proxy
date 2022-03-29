@@ -41,34 +41,6 @@ func standardUrl(from *url.URL) {
 	}
 }
 
-////进行tls握手
-//func dialTLS(network, addr string) (net.Conn, error) {
-//	conn, err := net.Dial(network, addr)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	host, _, err := net.SplitHostPort(addr)
-//	if err != nil {
-//		return nil, err
-//	}
-//	cfg := &tls.Config{ServerName: host}
-//
-//	tlsConn := tls.Client(conn, cfg)
-//	if err := tlsConn.Handshake(); err != nil {
-//		conn.Close()
-//		return nil, err
-//	}
-//
-//	cs := tlsConn.ConnectionState()
-//	cert := cs.PeerCertificates[0]
-//
-//	// Verify here
-//	cert.VerifyHostname(host)
-//	log.Println(cert.Subject)
-//
-//	return tlsConn, nil
-//}
 func customTransport(to *url.URL) http.RoundTripper {
 	var dialer = &net.Dialer{
 		Timeout:   30 * time.Second,
@@ -146,12 +118,13 @@ func NewUrlRewriteMiddleWare(from, to *url.URL) *RewriteUrlMiddleWare {
 	director := func(req *http.Request) {
 		//禁用重定向
 
-		raw := strutil.String2Bytes(&req.URL.Path)
 		req.URL.Scheme = to.Scheme
 		req.URL.Host = to.Host
 
-		req.URL.Path = strutil.Byte2String(strutil.UnsafeReplaceBegin(raw, old, now))
 		req.URL.Path, req.URL.RawPath = joinURLPath(to, req.URL)
+		//replace the url path  :  localhost:8080/api/xxx =>  www.baidu.com/xxx
+		raw := strutil.String2Bytes(&req.URL.Path)
+		req.URL.Path = strutil.Byte2String(strutil.UnsafeReplaceBegin(raw, old, now))
 		if targetQuery == "" || req.URL.RawQuery == "" {
 			req.URL.RawQuery = targetQuery + req.URL.RawQuery
 		} else {

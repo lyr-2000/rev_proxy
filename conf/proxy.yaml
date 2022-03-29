@@ -4,7 +4,7 @@ keyFile: "./conf/localhost-key.pem"
 proxy:
   http:
     - nodes:
-        from: http://localhost:8081/
+        from: http://localhost:8081/github/
         to:
           - https://github.com/
 #  tcp:
